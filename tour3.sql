@@ -8,12 +8,11 @@ Professor Wong
 */
 
 -- Initial Drop
-DROP TABLE Reservation
-DROP TABLE Customer
-DROP TABLE Guide
-DROP TABLE Tour
-DROP TABLE Location
-
+DROP TABLE Location;
+DROP TABLE Reservation;
+DROP TABLE Customer;
+DROP TABLE Guide;
+DROP TABLE Tour;
 
 -- Create Tables
 CREATE TABLE Customer (
@@ -21,8 +20,8 @@ CREATE TABLE Customer (
     firstName varchar2(15),
     lastName varchar2(15),
     address varchar2(25),
-    phone number(10),
-    age number(3)
+    phone number(10) NOT NULL UNIQUE,
+    age number(3) CHECK (age >= 5),
     CONSTRAINT Customer_PK PRIMARY KEY(customerID)
 );
 
@@ -32,7 +31,7 @@ CREATE TABLE Tour (
     description varchar2(40),
     city varchar2(15),
     state char(2),
-    vehicleType(15),
+    vehicleType varchar2(15) CHECK (vehicleType = 'bus' OR vehicleType = 'car' OR vehicleType = 'duckboat'),
     CONSTRAINT Tour_PK PRIMARY KEY(tourID)
 );
 
@@ -41,7 +40,7 @@ CREATE TABLE Guide (
     firstName varchar2(15),
     lastName varchar2(15),
     phone number(10,0),
-    vehicleType varchar2(15),
+    vehicleType varchar2(15) CHECK (vehicleType = 'bus' OR vehicleType = 'car' OR vehicleType = 'duckboat'),
     title varchar2(15),
     salary number(5),
     CONSTRAINT Guide_PK PRIMARY KEY(guideID)
@@ -51,16 +50,20 @@ CREATE TABLE Location (
     locationName varchar2(30),
     locationType varchar2(10),
     address varchar2(40),
-    FOREIGN KEY tourID REFERENCES Tour(tourID)
-    CONSTRAING Location_PK PRIMARY KEY(locationName)
+    tourID number(3),
+    FOREIGN KEY (tourID) REFERENCES Tour(tourID),
+    CONSTRAINT Location_PK PRIMARY KEY(locationName)
 );
 
 CREATE TABLE Reservation (
     reservationID number(4),
     travelDate date,
-    FOREIGN KEY customerID REFERENCES Customer(customerID),
-    FOREIGN KEY tourID REFERENCES Tour(tourID),
-    FOREIGN KEY guidID REFERENCES Guide(guideID)
+    customerID number(4),
+    tourID number(3),
+    guideID number(3),
+    FOREIGN KEY (customerID) REFERENCES Customer(customerID),
+    FOREIGN KEY (tourID) REFERENCES Tour(tourID),
+    FOREIGN KEY (guideID) REFERENCES Guide(guideID),
     price number(5,2),
     CONSTRAINT Reservation_PK PRIMARY KEY(reservationID)
 );
@@ -68,18 +71,18 @@ CREATE TABLE Reservation (
 
 -- Create Sequences
 CREATE SEQUENCE seq_cID
-    MIN VALUE 5
-    STARTS WITH 5
+    MINVALUE 5
+    START WITH 5
     INCREMENT BY 5;
 
 CREATE SEQUENCE seq_gID
-    MIN VALUE 101
-    STARTS WITH 101
+    MINVALUE 101
+    START WITH 101
     INCREMENT BY 1;
 
 CREATE SEQUENCE seq_rID
-    MIN VALUE 100
-    STARTS WITH 100
+    MINVALUE 100
+    START WITH 100
     INCREMENT BY 10;
 
 insert into Customer values(seq_cID.nextval,'Michael','Ward','143 Cambridge Ave.',5082328798,45);
@@ -98,11 +101,11 @@ insert into Customer values(seq_cID.nextval,'Rachel','Lee','8711 Meadow St.',249
 insert into Customer values(seq_cID.nextval,'Dylan','Garcia','17 Valley Drive',9865553232,20);
 insert into Customer values(seq_cID.nextval,'Austin','Davis','1212 8th St.',4546667821,29);
 
-insert into Tour values(1, 'Duck Tour', 'Amphibious tour of the Charles River', 'Boston', 'MA', 'duckboat')
-insert into Tour values(2, 'Freedom Trail', 'Historic tour of Boston', 'Boston', 'MA', 'bus')
-insert into Tour values(3, 'Magnificent Mile Tour', 'Tour of Michigan', 'Chicago', 'IL', 'bus')
-insert into Tour values(4, 'City Sights', 'Highlights of New York City', 'New York', 'NY', 'car')
-insert into Tour values(5, 'Golden Gate', 'Tour of Golden Gate Park', 'San Francisco', 'CA', 'bus')
+insert into Tour values(1, 'Duck Tour','Amphibious tour of the Charles River','Boston','MA','duckboat');
+insert into Tour values(2, 'Freedom Trail','Historic tour of Boston','Boston','MA','bus');
+insert into Tour values(3, 'Magnificent Mile Tour','Tour of Michigan','Chicago','IL','bus');
+insert into Tour values(4, 'City Sights','Highlights of New York City','New York','NY','car');
+insert into Tour values(5, 'Golden Gate','Tour of Golden Gate Park','San Francisco','CA','bus');
 
 insert into Guide values(seq_gID.nextval,'Noah','Smith',5082391452,'bus','Junior Guide',22000);
 insert into Guide values(seq_gID.nextval,'Liam','Johnson',7812930638,'bus','Guide',31000);
@@ -120,7 +123,7 @@ insert into Location values('Salt and Pepper Bridge','Historic','100 Broadway',1
 insert into Location values('Boston Common','Park','139 Tremont Street',2);
 insert into Location values('Kings Chapel','Historic','58 Tremont Street',2);
 insert into Location values('Omni Parker House','Restaurant','60 School Street',2);
-insert into Location values('Paul Revere House','Historic','19 North Square'2);
+insert into Location values('Paul Revere House','Historic','19 North Square',2);
 insert into Location values('Bunker Hill Monument','Historic','Monument Square',2);
 insert into Location values('Art Institute','Museum','111 S Michigan Avenue',3);
 insert into Location values('Chicago Tribune','Historic','435 N Michigan Avenue',3);
@@ -153,3 +156,14 @@ insert into Reservation values(seq_rID.nextval,'12-Aug-16',35,4,107,null);
 insert into Reservation values(seq_rID.nextval,'22-Jun-16',70,1,107,null);
 insert into Reservation values(seq_rID.nextval,'1-Feb-16',60,5,101,null);
 
+/*
+
+Make sure that all of the data has been entered correctly.
+
+SELECT * FROM Reservation;
+SELECT * FROM Location;
+SELECT * FROM Customer;
+SELECT * FROM Guide;
+SELECT * FROM Tour;
+
+*/
